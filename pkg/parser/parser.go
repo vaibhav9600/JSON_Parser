@@ -43,7 +43,7 @@ func (p *Parser) ParseProgram() (ast.RootNode, error) {
 	}
 
 	val := p.parseValue()
-	if val == nil {
+	if val == nil || len(p.errors) > 0 {
 		p.parseError(fmt.Sprintf(
 			"Error parsing JSON expected a value, got: %v:",
 			p.currentToken.Literal,
@@ -91,6 +91,7 @@ func (p *Parser) parseJSONObject() ast.Value {
 					"Error parsing JSON object Expected `{` token, got: %s",
 					p.currentToken.Literal,
 				))
+				p.nextToken()
 			}
 		case ast.ObjectOpen:
 			if p.currentTokenTypeIs(token.RightBrace) {
@@ -150,6 +151,7 @@ func (p *Parser) parseProperty() ast.Property {
 					"Error parsing property start. Expected String token, got: %s",
 					p.currentToken.Literal,
 				))
+				p.nextToken()
 			}
 		case ast.PropertyKey:
 			if p.currentTokenTypeIs(token.Colon) {
@@ -160,6 +162,7 @@ func (p *Parser) parseProperty() ast.Property {
 					"Error parsing property start. Expected Colon token, got: %s",
 					p.currentToken.Literal,
 				))
+				p.nextToken()
 			}
 		case ast.PropertyColon:
 			val := p.parseValue()
@@ -209,6 +212,7 @@ func (p *Parser) parseJSONArray() ast.Value {
 					"Error parsing property. Expected RightBrace or Comma token, got: %s",
 					p.currentToken.Literal,
 				))
+				p.nextToken()
 			}
 		case ast.ArrayComma:
 			val := p.parseValue()
